@@ -5,109 +5,159 @@ using System.IO;
 
 namespace qoutesBook
 {
-    // Класс, предназначенный для хранения данных о каждой цитате 
-    public class Qcontrol
-    {
-        public int views = 0; // просмотры цитаты, по умолчанию = 0
-        public string stroke { get; set; } // текст цитаты
-        public int position { get; set; } // позиция каждой цитаты в списке
-    }
     class Program
     {
+        class QuoteControl
+        {
+            private string stroke;
+            private int views = 0;
+            private int index;
+
+            public void SetFull(string str, int vws, int indx)
+            {
+                stroke = str;
+                views = vws;
+                index = indx;
+            }
+            public void ShortGet()
+            {
+                Console.WriteLine(index + ".) " + stroke.Substring(0, 10) + "...");
+            }
+            public void FullGet()
+            {
+                views++;
+                Console.WriteLine(index + ".) " + stroke + "\nПросмотров: " + views);
+            }
+            public string save()
+            {
+                return stroke + "   " + views;
+            }
+        }
         static void Main(string[] args)
         {
-            // лист, элменты которого - объекты класса Qcontrol. 
-            List<Qcontrol> quoteList = new List<Qcontrol>();
+            List<QuoteControl> Quotes = new List<QuoteControl>();
 
-            int index;
-            string act; // переменная для команд пользователя
-            int pos;
-            string[] path = { @"quotes.txt", @"views.txt" };
+            string path = @"quotes.txt";
             string buffer;
-            // инфо для использования
-            Console.WriteLine("\n добавить цитату напишите 'добавить', " +
-                "\n посмотреть существующие - 'посмотреть'. " +
-                "\n покинуть просмотр, напишите 'выйти'.\n");
+            string act;
+            int index;
 
-            try
+            Boolean exist = false;
+            Boolean fun = false;
+
+            try // проверяю файл на существование и читаю его
             {
-                StreamReader sr = new StreamReader(path[0]);
-                int j = quoteList.Count;
+                StreamReader sr = new StreamReader(path);
                 while ((buffer = sr.ReadLine()) != null)
                 {
-                    quoteList.Add(new Qcontrol());
-                    quoteList[j].stroke = buffer;
-                    quoteList[j].position = j;
-                    j++;
+                    Quotes.Add(new QuoteControl());
+                    Quotes[Quotes.Count - 1].SetFull(
+                        // считывать значение строки до последних трех символов
+                        buffer.Substring(0, buffer.Length - 3), 
+                        // перевести последние три символа в число
+                        int.Parse(buffer.Substring(buffer.Length - 3)), 
+                        // позиция цитаты
+                        Quotes.Count - 1
+                        );
                 }
                 sr.Close();
-            }
-            catch (Exception ex)
+                exist = true;
+            } 
+            catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
 
-            // главная функция, которая дает возможность использовать команды добавить, посмотреть и выйти из просмотра
+            void checking() // фрагмент выхода
+            {
+                act = Console.ReadLine();
+                if (act == "выйти" || act == "выход")
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("\n добавить цитату напишите 'добавить', " +
+                    "\n посмотреть существующие - 'посмотреть'. " +
+                    "\n Cохранить изменения - 'сохранить'\n");
+                    Console.ResetColor();
+                    addAndWatch();
+                }
+                if (act == "сохранить")
+                {
+                    saveF(fun = true);
+                }
+                try
+                {
+                    index = int.Parse(act);
+                    if (Quotes.Count - 1 >= index)
+                    {
+                        Quotes[index].FullGet();
+                    }
+                }
+                catch { }
+                checking();
+            }
+
+            void saveF(Boolean fun) // сохранене файла
+            {
+                StreamWriter swr = new StreamWriter(path);
+                for (int i = 0; i < Quotes.Count; i++)
+                {
+                    swr.WriteLine(Quotes[i].save());
+                }
+                swr.Close();
+                Console.WriteLine("\nИзменения сохранены\n");
+
+                if (fun == false) { addAndWatch(); } else { checking(); }
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n добавить цитату напишите 'добавить', " +
+            "\n посмотреть существующие - 'посмотреть'. " +
+            "\n Cохранить изменения - 'сохранить'\n");
+            Console.ResetColor();
+
             void addAndWatch()
             {
-                pos = quoteList.Count;
                 act = Console.ReadLine();
-                if (act == "добавить" || act == "добавить ")
+                
+                if (act == "добавить")
                 {
-                    quoteList.Add(new Qcontrol());                      // добавить в лист новую цитату
-                    Console.WriteLine("Новая цитата " + pos + ": ");    // вывести приглашение для написания цитаты с обозначением её будущей позиции
-                    quoteList[pos].position = pos;                      // установка позиции для цитаты с помощью счетчика позиций pos
-                    quoteList[pos].stroke = Console.ReadLine();                          // написание цитаты
-                    Console.WriteLine("\n");
-
-                    StreamWriter swr = new StreamWriter(path[0], true);
-                    swr.WriteLine(quoteList[pos].views + quoteList[pos].stroke);
-                    swr.Close();
-
-                    pos++;                                              // прирощение счетчика позиции для новых цитат
-                    addAndWatch();                                      // вернуться к возможности добавлять и просматривать цитаты
-
+                    Quotes.Add(new QuoteControl());
+                    Console.WriteLine("Новая цитата " + (Quotes.Count - 1) + ":");
+                    buffer = Console.ReadLine();
+                    Quotes[Quotes.Count - 1].SetFull(buffer, 0, Quotes.Count - 1);
+                    exist = true;
+                    Console.WriteLine();
+                    addAndWatch();
                 }
-                else if (act == "посмотреть" || act == "посмотреть ")
+                if (act == "посмотреть")
                 {
-                    // если лист пуст, выдать сообщение и вернуться к возможности добавлять и просматривать цитаты
-                    // // // если в списке есть хотя бы одна запись, то это условие просто не выполнится и код пойдет дальше.
-                    if (quoteList.Count == 0) { Console.WriteLine("Список цитат ещё пуст :(\n"); addAndWatch(); }
-
-                    // вывести весь список
-                    foreach (Qcontrol ele in quoteList)
+                    if (exist == false)
                     {
-                        Console.WriteLine(ele.position + ". " + ele.stroke.Substring(0, 10) + "...");
+                        Console.WriteLine("Список ещё пуст :<\n");
+                        addAndWatch();
                     }
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("\nРежим просмотра");
+                    Console.ResetColor();
+                    Console.WriteLine(" Чтобы посмотреть цитату введите число от 0 до " + 
+                        (Quotes.Count - 1) + 
+                        "\n Для выхода напишите \"выйти\"\n");
 
-                    // функция просмотра цитат
-                    void req()
+                    for (int i = 0; i < Quotes.Count; i++)
                     {
-                        Console.Write("\nДля предпросмотра цитаты введите её номер: ");
-                        act = Console.ReadLine();
-
-                        // вернуться к возможности добавлять и просматривать цитаты
-                        if (act == "выход" || act == "выйти") { addAndWatch(); }
-                        else
-                        {
-                            index = int.Parse(act); // попытка захвата целого числа из полученной строки
-
-                            if (quoteList.Count() - 1 >= index)                 // если список длиннее или равен полученному числу
-                            {
-                                Console.WriteLine(quoteList[index].stroke); // вывод строки по полученному индексу
-                                quoteList[index].views++;                   // увеличение числа просмотров и из вывод в следующей строке
-                                Console.WriteLine("Кол-во просмотров: " + quoteList[index].views);
-                            }
-                            req();
-                        }
+                        Quotes[i].ShortGet();
                     }
-                    req();
+                    Console.WriteLine();
+
+                    checking();
+                }
+                if (act == "сохранить")
+                {
+                    saveF(fun = false);
                 }
                 addAndWatch();
-
             }
             addAndWatch();
-
             Console.ReadLine();
         }
     }
