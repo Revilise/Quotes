@@ -53,17 +53,17 @@ namespace qoutesBook
                     Quotes.Add(new QuoteControl());
                     Quotes[Quotes.Count - 1].SetFull(
                         // считывать значение строки до последних трех символов
-                        buffer.Substring(0, buffer.Length - 3), 
+                        buffer.Substring(0, buffer.Length - 3),
                         // перевести последние три символа в число
-                        int.Parse(buffer.Substring(buffer.Length - 3)), 
+                        int.Parse(buffer.Substring(buffer.Length - 3)),
                         // позиция цитаты
                         Quotes.Count - 1
                         );
                 }
                 sr.Close();
                 exist = true;
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
@@ -104,7 +104,10 @@ namespace qoutesBook
                     swr.WriteLine(Quotes[i].save());
                 }
                 swr.Close();
+
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("\nИзменения сохранены\n");
+                Console.ResetColor();
 
                 if (fun == false) { addAndWatch(); } else { checking(); }
             }
@@ -118,7 +121,7 @@ namespace qoutesBook
             void addAndWatch()
             {
                 act = Console.ReadLine();
-                
+
                 if (act == "добавить")
                 {
                     Quotes.Add(new QuoteControl());
@@ -139,8 +142,8 @@ namespace qoutesBook
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     Console.WriteLine("\nРежим просмотра");
                     Console.ResetColor();
-                    Console.WriteLine(" Чтобы посмотреть цитату введите число от 0 до " + 
-                        (Quotes.Count - 1) + 
+                    Console.WriteLine(" Чтобы посмотреть цитату введите число от 0 до " +
+                        (Quotes.Count - 1) +
                         "\n Для выхода напишите \"выйти\"\n");
 
                     for (int i = 0; i < Quotes.Count; i++)
