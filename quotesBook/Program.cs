@@ -97,10 +97,6 @@ namespace qoutesBook
                                 Console.WriteLine(quoteList[index].stroke); // вывод строки по полученному индексу
                                 quoteList[index].views++;                   // увеличение числа просмотров и из вывод в следующей строке
                                 Console.WriteLine("Кол-во просмотров: " + quoteList[index].views);
-
-                                StreamWriter swr = new StreamWriter(path[1], false);
-
-                                swr.
                             }
                             req();
                         }
