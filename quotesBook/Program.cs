@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
-namespace qoutesBook
+namespace quotesBook
 {
     class Program
     {
@@ -21,7 +21,8 @@ namespace qoutesBook
             }
             public void ShortGet()
             {
-                Console.WriteLine(index + ".) " + stroke.Substring(0, 10) + "...");
+                try { Console.WriteLine(index + ".) " + stroke.Substring(0, 10) + "..."); }
+                catch { Console.WriteLine(index + ".) " + stroke); }
             }
             public void FullGet()
             {
@@ -37,7 +38,9 @@ namespace qoutesBook
         {
             List<QuoteControl> Quotes = new List<QuoteControl>();
 
-            string path = @"quotes.txt";
+            Console.WriteLine("Введите название файла ");
+            //string path = @"quotes.txt";
+            string path = @Console.ReadLine()+ ".txt";
             string buffer;
             string act;
             int index;
@@ -96,8 +99,9 @@ namespace qoutesBook
                 checking();
             }
 
-            void saveF(Boolean fun) // сохранене файла
+            void saveF(Boolean funt) // сохранене файла
             {
+                // перезапись текстовика
                 StreamWriter swr = new StreamWriter(path);
                 for (int i = 0; i < Quotes.Count; i++)
                 {
